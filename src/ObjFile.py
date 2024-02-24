@@ -183,7 +183,7 @@ class ObjFile:
         # ax = fig.gca(projection='3d')
         ax = fig.add_subplot(111, projection="3d")
         ax.plot_trisurf(
-            self.nodes[:, 0], self.nodes[:, 1], self.nodes[:, 2], triangles=tri
+            self.nodes[:, 2], self.nodes[:, 0], self.nodes[:, 1], triangles=tri
         )
         ax.axis("off")
         fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
@@ -231,6 +231,14 @@ class ObjFile:
 
             plt.savefig(output_file, dpi=dpi, transparent=True)
             plt.close()
+
+            from PIL import Image
+
+            img = Image.open(output_file)
+            img = img.convert("L")
+            img = img.point(lambda p: p > 128 and 255)
+            img.save(output_file)
+
         else:
             if animate:
                 # rotate the axes and update
