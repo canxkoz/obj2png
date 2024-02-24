@@ -33,6 +33,7 @@ import ObjFile
 import sys
 import os
 import glob
+import numpy as np
 
 if __name__ == "__main__":  # noqa: C901
 
@@ -107,9 +108,7 @@ if __name__ == "__main__":  # noqa: C901
 
     print(args)
 
-    objfiles = args.objfiles
-    if "*" in objfiles[0]:
-        objfiles = glob.glob(objfiles[0])
+    objfile = args.objfiles[0]
 
     res = {"HIGH": 1200, "MEDIUM": 600, "LOW": 300}
     dpi = None
@@ -126,9 +125,8 @@ if __name__ == "__main__":  # noqa: C901
         width = int(width)
         height = int(height)
 
-    azim = None
-    if args.azim is not None:
-        azim = args.azim
+    # get azimuth every 1 degrees
+    azim = np.arange(0, 360, 1)
 
     elevation = None
     if args.elevation is not None:
@@ -142,26 +140,18 @@ if __name__ == "__main__":  # noqa: C901
     if args.animate:
         animate = args.animate
 
-    for objfile in objfiles:
+    for angle in azim:
+        
+        outfile = args.outfile + f"horse-azimuth-{int(angle)}" + ".png"
 
-        if os.path.isfile(objfile) and ".obj" in objfile:
-            outfile = objfile.replace(".obj", ".png")
-            if args.outfile:
-                outfile = args.outfile
-            if args.view:
-                outfile = None
-            else:
-                print("Converting %s to %s" % (objfile, outfile))
-            ob = ObjFile.ObjFile(objfile)
-            ob.Plot(
-                outfile,
-                elevation=elevation,
-                azim=azim,
-                width=width,
-                height=height,
-                scale=scale,
-                animate=animate,
-            )
-        else:
-            print("File %s not found or not file type .obj" % objfile)
-            sys.exit(1)
+        print("Converting %s to %s" % (objfile, outfile))
+        ob = ObjFile.ObjFile(objfile)
+        ob.Plot(
+            outfile,
+            elevation=0,
+            azim=angle,
+            width=width,
+            height=height,
+            scale=scale,
+            animate=animate, 
+        )
